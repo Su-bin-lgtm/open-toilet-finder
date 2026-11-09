@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.opentoilet'
+version = '0.0.1-SNAPSHOT'
+
+// Java 21 LTS 버전 사용
+java {
+    sourceCompatibility = '21'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // 1. Spring Boot Web (REST API 구현용)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // 2. Spring Data JPA & Hibernate (데이터베이스 ORM)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // 3. MySQL 데이터베이스 드라이버
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // 4. 입력값 유효성 검증 (Validation)
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 5. Lombok (Getter, Setter, 생성자 자동 생성 - 초보자도 코드 양을 줄여 쉽게 파악 가능)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // 6. 테스트 의존성
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
