@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { navigate } from '../navigation/routes';
 import { colors, radius, spacing } from '../theme';
 
-/** 아직 만들지 않은 화면의 자리. 4주차 이후에 실제 화면으로 바뀐다. */
+/** 아직 만들지 않은 화면의 자리. (내 제보 등) */
 export default function ComingSoonScreen({ title, known }: { title: string; known: boolean }) {
   return (
     <View style={styles.root}>
@@ -10,7 +10,7 @@ export default function ComingSoonScreen({ title, known }: { title: string; know
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.body}>
           {known
-            ? '이 화면은 4주차 이후에 만듭니다. 제보 방식과 로그인 범위가 정해지면 시작해요.'
+            ? '이 화면은 아직 준비 중이에요. 로그인 없이 쓰는 지금 방식에서는 내 제보를 구분할 기준이 없어, 사용자 식별 방식이 정해지면 만듭니다.'
             : '주소를 확인해 주세요. 없는 화면이에요.'}
         </Text>
         <Pressable onPress={() => navigate('/')} accessibilityRole="button" style={styles.button}>

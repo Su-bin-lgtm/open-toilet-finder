@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors, radius, spacing } from '../theme';
 import type { Toilet, ToiletFilter } from '../types/toilet';
+import { hasAnyFilter } from '../services/toiletLogic';
 import Chip from './Chip';
 import ToiletCard from './ToiletCard';
 
@@ -27,7 +28,7 @@ interface Props {
 /** 왼쪽 패널: 검색, 현재 위치로 찾기, 필터, 목록 */
 export default function ToiletListPanel(props: Props) {
   const { filter, onFilterChange, toilets, loading, error } = props;
-  const noFilter = !filter.accessibleOnly && !filter.diaperTableOnly && !filter.availableOnly;
+  const noFilter = !hasAnyFilter(filter);
 
   return (
     <View style={styles.panel}>
@@ -76,7 +77,12 @@ export default function ToiletListPanel(props: Props) {
             label="전체"
             selected={noFilter}
             onPress={() =>
-              onFilterChange({ accessibleOnly: false, diaperTableOnly: false, availableOnly: false })
+              onFilterChange({
+                accessibleOnly: false,
+                diaperTableOnly: false,
+                unisexOnly: false,
+                availableOnly: false,
+              })
             }
           />
           <Chip
@@ -90,6 +96,11 @@ export default function ToiletListPanel(props: Props) {
             onPress={() => onFilterChange({ diaperTableOnly: !filter.diaperTableOnly })}
           />
           <Chip
+            label="남녀 공용"
+            selected={filter.unisexOnly}
+            onPress={() => onFilterChange({ unisexOnly: !filter.unisexOnly })}
+          />
+          <Chip
             label="이용 가능"
             selected={filter.availableOnly}
             onPress={() => onFilterChange({ availableOnly: !filter.availableOnly })}
@@ -99,10 +110,18 @@ export default function ToiletListPanel(props: Props) {
         <View style={styles.countRow}>
           <Text style={styles.count}>
             주변 화장실 <Text style={styles.countNumber}>{toilets.length}곳</Text>
+            {loading && toilets.length > 0 ? <Text style={styles.refreshing}> 조회 중…</Text> : null}
           </Text>
           <Text style={styles.sort}>가까운 순 · 이용 가능 우선</Text>
         </View>
       </View>
+
+      {error && toilets.length > 0 ? (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>{error}</Text>
+          <Chip label="다시 시도" onPress={props.onRetry} />
+        </View>
+      ) : null}
 
       <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
         {loading && toilets.length === 0 ? (
@@ -172,7 +191,18 @@ const styles = StyleSheet.create({
   },
   count: { fontSize: 15, fontWeight: '700', color: colors.text },
   countNumber: { color: colors.primary },
+  refreshing: { fontSize: 12, fontWeight: '400', color: colors.subText },
   sort: { fontSize: 12, color: colors.subText },
+  errorBanner: {
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    padding: spacing.md,
+    gap: spacing.sm,
+    alignItems: 'flex-start',
+    borderRadius: radius.sm,
+    backgroundColor: colors.orangeSoft,
+  },
+  errorText: { fontSize: 13, color: colors.orange, lineHeight: 19 },
   list: { flex: 1, marginTop: spacing.sm },
   listContent: { paddingHorizontal: spacing.md, paddingBottom: spacing.md },
   state: { padding: spacing.xl, fontSize: 14, color: colors.subText, textAlign: 'center' },

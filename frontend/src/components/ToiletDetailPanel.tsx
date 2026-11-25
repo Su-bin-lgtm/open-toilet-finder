@@ -1,16 +1,17 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNearbyToilets } from '../hooks/useNearbyToilets';
+import { navigate, routeWith } from '../navigation/routes';
 import { fetchToiletDetail } from '../services/api';
 import { openDirections } from '../services/mapLink';
-import { notify } from '../services/notify';
 import {
   formatDateTime,
   getClosingLabel,
   getDisplayStatus,
 } from '../services/toiletLogic';
 import { colors, radius, spacing } from '../theme';
-import type { PaperStatus, PasscodeStatus, Toilet } from '../types/toilet';
+import type { ErrorReportReason, HygieneLevel, PaperStatus, PasscodeStatus, Toilet } from '../types/toilet';
+import ErrorReportModal from './ErrorReportModal';
 import StatusBadge from './StatusBadge';
 
 interface Props {
@@ -25,6 +26,12 @@ const PAPER_TEXT: Record<PaperStatus, string> = {
   NONE: '없음',
   UNKNOWN: '정보 없음',
 };
+const HYGIENE_TEXT: Record<HygieneLevel | 'UNKNOWN', string> = {
+  CLEAN: '깨끗해요',
+  NORMAL: '보통이에요',
+  DIRTY: '더러워요',
+  UNKNOWN: '정보 없음',
+};
 const PASSCODE_TEXT: Record<PasscodeStatus, string> = {
   NOT_REQUIRED: '필요 없음',
   REQUIRED: '필요',
@@ -33,8 +40,10 @@ const PASSCODE_TEXT: Record<PasscodeStatus, string> = {
 
 /** 오른쪽 패널: 선택한 화장실의 상세 정보 */
 export default function ToiletDetailPanel({ toilet, now, onClose }: Props) {
-  const { upsertToilet } = useNearbyToilets();
+  const { upsertToilet, userLocation } = useNearbyToilets();
   const [refreshFailed, setRefreshFailed] = useState(false);
+  // 오류 신고 창 (FE-13). 도어락 삭제 요청 버튼으로 열면 해당 사유를 미리 선택해 둔다.
+  const [errorReport, setErrorReport] = useState<{ reason?: ErrorReportReason } | null>(null);
 
   // 선택할 때마다 서버에서 최신 정보를 받아 목록에도 반영한다. (실패해도 이미 있는 정보는 그대로 보여 준다)
   const toiletId = toilet?.id ?? null;
@@ -110,8 +119,26 @@ export default function ToiletDetailPanel({ toilet, now, onClose }: Props) {
           <Section title="편의시설 및 출입 정보">
             <Row label="장애인 화장실" value={toilet.hasAccessible ? '이용 가능' : '없음'} good={toilet.hasAccessible} />
             <Row label="기저귀 교환대" value={toilet.hasDiaperTable ? '있음' : '없음'} good={toilet.hasDiaperTable} />
+            <Row label="남녀 공용" value={toilet.isUnisex ? '공용' : '남녀 구분'} />
             <Row label="화장지" value={PAPER_TEXT[toilet.toiletPaper]} good={toilet.toiletPaper === 'PROVIDED'} />
+            {toilet.hygiene ? (
+              <Row label="위생 상태" value={HYGIENE_TEXT[toilet.hygiene]} good={toilet.hygiene === 'CLEAN'} />
+            ) : null}
             <Row label="출입 비밀번호" value={PASSCODE_TEXT[toilet.passcode]} />
+            {/* UI-11: 도어락 정보 안내 문구와 관리 주체의 삭제 요청 방법 */}
+            <View style={styles.doorlockNote}>
+              <Text style={styles.doorlockText}>
+                도어락 정보는 일반에 개방된 화장실에 한해 제공해요. 화장실을 관리하는 분은 아래에서
+                삭제를 요청할 수 있어요.
+              </Text>
+              <Pressable
+                onPress={() => setErrorReport({ reason: 'DOORLOCK_REMOVAL' })}
+                accessibilityRole="button"
+                hitSlop={8}
+              >
+                <Text style={styles.doorlockLink}>도어락 정보 삭제 요청</Text>
+              </Pressable>
+            </View>
           </Section>
 
           <Section title="운영시간">
@@ -150,21 +177,42 @@ export default function ToiletDetailPanel({ toilet, now, onClose }: Props) {
       <View style={styles.actions}>
         <Pressable
           onPress={() =>
-            openDirections({ name: toilet.name, latitude: toilet.latitude, longitude: toilet.longitude })
+            openDirections(
+              { name: toilet.name, latitude: toilet.latitude, longitude: toilet.longitude },
+              userLocation,
+            )
           }
           accessibilityRole="button"
-          style={[styles.btn, styles.btnPrimary]}
+          style={[styles.btn, styles.btnPrimary, styles.btnFull]}
         >
           <Text style={styles.btnPrimaryText}>길찾기</Text>
         </Pressable>
-        <Pressable
-          onPress={() => notify('정보 오류 신고는 4주차에 연결됩니다.')}
-          accessibilityRole="button"
-          style={[styles.btn, styles.btnOutline]}
-        >
-          <Text style={styles.btnOutlineText}>정보 오류 신고</Text>
-        </Pressable>
+        <View style={styles.actionRow}>
+          <Pressable
+            onPress={() => navigate(routeWith('/report', { id: toilet.id }))}
+            accessibilityRole="button"
+            style={[styles.btn, styles.btnOutline]}
+          >
+            <Text style={styles.btnOutlineText}>제보하기</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setErrorReport({})}
+            accessibilityRole="button"
+            style={[styles.btn, styles.btnOutline]}
+          >
+            <Text style={styles.btnOutlineText}>정보 오류 신고</Text>
+          </Pressable>
+        </View>
       </View>
+
+      {errorReport ? (
+        <ErrorReportModal
+          key={toilet.id}
+          toilet={toilet}
+          initialReason={errorReport.reason}
+          onClose={() => setErrorReport(null)}
+        />
+      ) : null}
     </View>
   );
 }
@@ -240,8 +288,12 @@ const styles = StyleSheet.create({
   reportTag: { fontSize: 12, fontWeight: '700', color: colors.green },
   updated: { fontSize: 12, color: colors.mutedText, marginTop: spacing.xs },
   warn: { fontSize: 12, color: colors.orange },
+  doorlockNote: { marginTop: spacing.sm, gap: 4, padding: spacing.md, borderRadius: radius.sm, backgroundColor: colors.surfaceAlt },
+  doorlockText: { fontSize: 12, color: colors.subText, lineHeight: 18 },
+  doorlockLink: { fontSize: 12, fontWeight: '700', color: colors.primary },
+  actionRow: { flexDirection: 'row', gap: spacing.sm },
+  btnFull: { flex: 0, alignSelf: 'stretch' },
   actions: {
-    flexDirection: 'row',
     gap: spacing.sm,
     padding: spacing.lg,
     borderTopWidth: 1,

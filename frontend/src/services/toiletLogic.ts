@@ -1,6 +1,6 @@
 // 화면과 상관없는 "계산" 규칙: 거리, 운영 상태, 정렬, 필터, 검색, 날짜 표시.
 import { WALK_METERS_PER_MIN } from './config';
-import type { Coords, Toilet, ToiletFilter } from '../types/toilet';
+import type { Coords, ServerFilter, Toilet, ToiletFilter } from '../types/toilet';
 
 // ───────── 거리 ─────────
 const EARTH_RADIUS_M = 6_371_000;
@@ -126,8 +126,27 @@ export function sortToilets(list: Toilet[], now: Date = new Date()): Toilet[] {
 export const DEFAULT_FILTER: ToiletFilter = {
   accessibleOnly: false,
   diaperTableOnly: false,
+  unisexOnly: false,
   availableOnly: false,
 };
+
+/** 화면 필터에서 서버로 보낼 조건만 뽑는다. (FE-11) */
+export function toServerFilter(filter: ToiletFilter): ServerFilter {
+  return {
+    accessibleOnly: filter.accessibleOnly,
+    diaperTableOnly: filter.diaperTableOnly,
+    unisexOnly: filter.unisexOnly,
+  };
+}
+
+/** 서버 조건이 바뀌어 다시 조회해야 하는지 비교하기 위한 키 */
+export function serverFilterKey(filter: ToiletFilter): string {
+  return `${+filter.accessibleOnly}${+filter.diaperTableOnly}${+filter.unisexOnly}`;
+}
+
+export function hasAnyFilter(filter: ToiletFilter): boolean {
+  return filter.accessibleOnly || filter.diaperTableOnly || filter.unisexOnly || filter.availableOnly;
+}
 
 export function applyFilter(
   list: Toilet[],
@@ -137,6 +156,7 @@ export function applyFilter(
   return list.filter((t) => {
     if (filter.accessibleOnly && !t.hasAccessible) return false;
     if (filter.diaperTableOnly && !t.hasDiaperTable) return false;
+    if (filter.unisexOnly && !t.isUnisex) return false;
     if (filter.availableOnly && getDisplayStatus(t, now) !== 'AVAILABLE') return false;
     return true;
   });

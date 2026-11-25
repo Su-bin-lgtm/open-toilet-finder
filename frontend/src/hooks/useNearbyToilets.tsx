@@ -13,7 +13,13 @@ import {
 } from 'react';
 import { fetchNearbyToilets } from '../services/api';
 import { DEFAULT_RADIUS_M, FALLBACK_CENTER } from '../services/config';
-import { DEFAULT_FILTER, distanceMeters, withDistance } from '../services/toiletLogic';
+import {
+  DEFAULT_FILTER,
+  distanceMeters,
+  serverFilterKey,
+  toServerFilter,
+  withDistance,
+} from '../services/toiletLogic';
 import type { Coords, Toilet, ToiletFilter } from '../types/toilet';
 import { useCurrentLocation, type LocationStatus } from './useCurrentLocation';
 
@@ -61,10 +67,16 @@ export function NearbyToiletsProvider({ children }: { children: ReactNode }) {
   const [now, setNow] = useState(() => new Date());
 
   // 콜백이 매번 새로 만들어지지 않도록 최신 값을 ref 에 보관
+  const modeRef = useRef<SearchMode>('location');
   const centerRef = useRef<Coords | null>(null);
   centerRef.current = searchCenter;
+  modeRef.current = searchMode;
   const userRef = useRef<Coords | null>(null);
   userRef.current = location.coords;
+
+  // 조회할 때 항상 "지금 화면의 필터"를 서버 조건으로 보낸다. (FE-11)
+  const filterRef = useRef<ToiletFilter>(filter);
+  filterRef.current = filter;
 
   // 오래된 응답이 최신 응답을 덮어쓰지 않도록 요청 번호를 붙인다.
   const requestId = useRef(0);
@@ -76,7 +88,11 @@ export function NearbyToiletsProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      const list = await fetchNearbyToilets({ ...target, radius: DEFAULT_RADIUS_M });
+      const list = await fetchNearbyToilets({
+        ...target,
+        radius: DEFAULT_RADIUS_M,
+        filter: toServerFilter(filterRef.current),
+      });
       if (id !== requestId.current) return;
       setToilets(withDistance(list, target));
     } catch (e) {
@@ -95,6 +111,17 @@ export function NearbyToiletsProvider({ children }: { children: ReactNode }) {
     void load(location.coords ?? FALLBACK_CENTER, 'location');
   }, [location.status, location.coords, load]);
 
+  // 서버 조건(장애인·기저귀 교환대·남녀 공용)이 바뀌면 같은 위치로 다시 조회한다. (FE-11)
+  // "이용 가능"은 시각에 따라 달라지므로 서버에 보내지 않고 화면에서 거른다.
+  const filterKey = serverFilterKey(filter);
+  const lastFilterKey = useRef(filterKey);
+  useEffect(() => {
+    if (lastFilterKey.current === filterKey) return;
+    lastFilterKey.current = filterKey;
+    if (!didInitialLoad.current || !centerRef.current) return;
+    void load(centerRef.current, modeRef.current);
+  }, [filterKey, load]);
+
   // 1분마다 현재 시각 갱신
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 60_000);
@@ -109,8 +136,6 @@ export function NearbyToiletsProvider({ children }: { children: ReactNode }) {
 
   const searchAt = useCallback((center: Coords) => load(center, 'map'), [load]);
 
-  const modeRef = useRef<SearchMode>('location');
-  modeRef.current = searchMode;
   const retry = useCallback(
     () => load(centerRef.current ?? FALLBACK_CENTER, modeRef.current),
     [load],

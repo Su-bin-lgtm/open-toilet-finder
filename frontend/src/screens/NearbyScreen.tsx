@@ -12,6 +12,7 @@ import {
   applyFilter,
   formatDistance,
   getDisplayStatus,
+  hasAnyFilter,
   matchesQuery,
   sortToilets,
   walkMinutes,
@@ -22,7 +23,8 @@ const WIDE_LAYOUT_MIN_WIDTH = 1180; // 이보다 좁으면 상세 패널이 지�
 const LIST_WIDTH = 380;
 const DETAIL_WIDTH = 400;
 
-export default function NearbyScreen() {
+/** @param initialSelectedId 제보를 마치고 돌아올 때처럼, 처음부터 선택해 둘 화장실 */
+export default function NearbyScreen({ initialSelectedId }: { initialSelectedId?: string }) {
   const {
     searchCenter,
     searchMode,
@@ -44,7 +46,7 @@ export default function NearbyScreen() {
   const wide = width >= WIDE_LAYOUT_MIN_WIDTH;
 
   const [query, setQuery] = useState('');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId ?? null);
   const [detailOpen, setDetailOpen] = useState(true);
 
   // 검색어 → 필터 → 정렬(이용 가능 우선, 가까운 순)
@@ -54,7 +56,7 @@ export default function NearbyScreen() {
   );
 
   // 목록이 처음 도착하면 가장 앞의 화장실을 선택해서 상세를 보여 준다. (시안과 같은 첫 화면)
-  const autoSelected = useRef(false);
+  const autoSelected = useRef(initialSelectedId !== undefined);
   useEffect(() => {
     if (!autoSelected.current && visible.length > 0) {
       autoSelected.current = true;
@@ -106,8 +108,9 @@ export default function NearbyScreen() {
         : (locationMessage ?? '위치를 알 수 없어 기본 위치(서울시청) 기준이에요.');
   }
 
+  // 서버가 필터를 적용해서 주므로, 필터가 켜져 있으면 빈 결과도 "조건에 맞는 곳 없음"으로 안내한다.
   const emptyMessage =
-    toilets.length === 0
+    toilets.length === 0 && !hasAnyFilter(filter) && query.trim() === ''
       ? '주변 1km 안에 등록된 화장실이 없어요.'
       : '조건에 맞는 화장실이 없어요. 검색어나 필터를 바꿔 보세요.';
 

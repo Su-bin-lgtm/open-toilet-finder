@@ -2,12 +2,13 @@ import { StyleSheet, View } from 'react-native';
 import TopNav from '../components/TopNav';
 import ComingSoonScreen from '../screens/ComingSoonScreen';
 import NearbyScreen from '../screens/NearbyScreen';
+import ReportScreen from '../screens/ReportScreen';
 import { colors } from '../theme';
-import { ROUTES, useRoute } from './routes';
+import { ROUTES, splitRoute, useRoute } from './routes';
 
 /** 상단 메뉴 + 현재 주소에 맞는 화면 */
 export default function AppRouter() {
-  const path = useRoute();
+  const { path, params } = splitRoute(useRoute());
   const route = ROUTES.find((r) => r.path === path);
 
   return (
@@ -15,7 +16,9 @@ export default function AppRouter() {
       <TopNav currentPath={path} />
       <View style={styles.content}>
         {path === '/' ? (
-          <NearbyScreen />
+          <NearbyScreen initialSelectedId={params.id} />
+        ) : path === '/report' ? (
+          <ReportScreen toiletId={params.id} />
         ) : (
           <ComingSoonScreen title={route?.label ?? '페이지를 찾을 수 없어요'} known={route !== undefined} />
         )}
