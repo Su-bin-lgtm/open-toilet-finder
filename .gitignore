@@ -1,5 +1,0 @@
-# Excel parsing temporary files
-parse_excel.*
-read_excel.*
-temp.zip
-temp_extracted/
