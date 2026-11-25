@@ -59,3 +59,4 @@ export interface ToiletFilterOptions {
   hasTissue?: boolean;
   radiusMeter?: number; // 기본 500m ~ 1000m
 }
+

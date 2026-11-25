@@ -1,10 +1,10 @@
-# 📱 Open Toilet Finder - Frontend (React Native & Expo)
+# Open Toilet Finder - Frontend (React Native & Expo)
 
 개방화장실 실시간 정보 공유 및 내비게이션 플랫폼의 모바일 클라이언트 앱입니다.
 
 ---
 
-## 🛠️ 기술 스택
+## 1. 기술 스택
 
 * **Framework**: React Native (Expo SDK 50)
 * **Language**: TypeScript
@@ -15,7 +15,7 @@
 
 ---
 
-## 📂 폴더 구조
+## 2. 폴더 구조
 
 ```text
 frontend/
@@ -34,15 +34,15 @@ frontend/
 
 ---
 
-## 🚀 빠른 시작 가이드
+## 3. 빠른 시작 가이드
 
-### 1. 패키지 설치
+### 1) 패키지 설치
 ```bash
 cd frontend
 npm install
 ```
 
-### 2. 로컬 개발 서버 실행
+### 2) 로컬 개발 서버 실행
 ```bash
 npx expo start
 ```
@@ -51,6 +51,6 @@ npx expo start
 
 ---
 
-## 🔗 백엔드 API 연동 주의사항
+## 4. 백엔드 API 연동 주의사항
 * 안드로이드 에뮬레이터에서 `localhost:8080` 접근 시: `http://10.0.2.2:8080`을 사용해야 합니다.
 * 실제 스마트폰 기기에서 테스트할 때는 컴퓨터와 스마트폰이 같은 Wi-Fi에 연결되어 있어야 하며, 컴퓨터의 로컬 IP(예: `http://192.168.0.x:8080`)로 요청해야 합니다.

@@ -1,10 +1,10 @@
-# 🗄️ 데이터베이스 및 시스템 설계 (ERD & Architecture)
+# 데이터베이스 및 시스템 설계 (ERD & Architecture)
 
 본 문서는 **개방화장실 실시간 정보 공유 및 내비게이션 플랫폼**의 데이터베이스 모델링 및 엔티티 관계를 정의합니다.
 
 ---
 
-## 📊 1. ERD (Entity Relationship Diagram)
+## 1. ERD (Entity Relationship Diagram)
 
 ```mermaid
 erDiagram
@@ -59,13 +59,12 @@ erDiagram
 
 ---
 
-## 📋 2. 테이블 상세 명세
+## 2. 테이블 상세 명세
 
 ### 1) `toilet` (개방화장실 마스터 테이블)
 * **목적**: 전국의 개방 및 공중화장실의 마스터 정보를 저장합니다.
 * **인덱스(Index)**:
   * `idx_toilet_location`: `(latitude, longitude)` 복합 인덱스 (위치 기반 반경 쿼리 속도 최적화)
-  * `idx_toilet_filter`: `(has_disabled_toilet, has_diaper_table)`
 
 ### 2) `toilet_report` (사용자 실시간 상태 제보 테이블)
 * **목적**: 사용자들이 방문하여 실시간으로 등록한 상태(휴지, 청결도 등) 히스토리를 저장합니다.
@@ -82,9 +81,9 @@ erDiagram
 
 ---
 
-## 📐 3. 위치 기반 반경 검색 알고리즘 (Backend 로직)
+## 3. 위치 기반 반경 검색 알고리즘 (Backend 로직)
 
-Spring Data JPA 및 MySQL에서 사용자 위치 `(userLat, userLng)`와 반경 `radiusKm` 내의 화장실을 탐색하기 위해 **Haversine(하버사인) 공식**을 적용합니다.
+Spring Data JPA 및 MySQL에서 사용자 위치와 반경 내의 화장실을 탐색하기 위해 **Haversine(하버사인) 공식**을 적용합니다.
 
 ```sql
 SELECT *, 
@@ -97,4 +96,3 @@ WHERE latitude BETWEEN (:userLat - (:radiusKm / 111.0)) AND (:userLat + (:radius
 HAVING distance <= :radiusKm 
 ORDER BY distance ASC;
 ```
-* Bounding Box 조건을 먼저 걸어 인덱스를 타게 한 후 정확한 거리를 계산하므로 성능을 보장합니다.

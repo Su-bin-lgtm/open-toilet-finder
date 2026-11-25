@@ -1,0 +1,33 @@
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  seeder:
+    initial-data:
+      enabled: false
+  public-restroom:
+    sync-on-start: false
+    daily-sync:
+      enabled: false
+  images:
+    storage-dir: ${TOILET_IMAGE_STORAGE_DIR:/var/data/images}
+
+logging:
+  level:
+    root: INFO
+    com.opentoilet: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: OFF

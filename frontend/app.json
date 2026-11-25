@@ -11,6 +11,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "현장 화장실 사진 촬영을 위해 카메라 접근 권한이 필요합니다."
+        }
+      ],
+      "expo-secure-store"
+    ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {

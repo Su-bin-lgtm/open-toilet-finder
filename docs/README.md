@@ -1,4 +1,4 @@
-# 📚 Documentation Index
+# Documentation Index
 
 프로젝트 관련 상세 설계 및 기획 문서 목록입니다.
 

@@ -1,0 +1,8 @@
+.git
+.gradle
+build
+bin
+.env
+.env.*
+src/main/resources/application-local.yml
+src/main/resources/application-local.properties

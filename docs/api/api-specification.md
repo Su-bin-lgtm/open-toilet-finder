@@ -1,4 +1,4 @@
-# 📡 REST API 명세서 (API Specification)
+# REST API 명세서 (API Specification)
 
 본 문서는 프론트엔드(React Native)와 백엔드(Spring Boot) 간의 HTTP REST 통신 규격을 정의합니다.
 
@@ -7,19 +7,23 @@
 
 ---
 
-## 📌 1. API 요약표
+## 1. API 요약표
 
 | 기능 | HTTP Method | Endpoint | 설명 |
 | :--- | :--- | :--- | :--- |
 | **주변 화장실 목록 조회** | `GET` | `/toilets/nearby` | 현재 GPS 좌표 기준 반경 내 화장실 조회 (필터 지원) |
+| **화장실 키워드 검색** | `GET` | `/toilets/search` | 화장실 이름 또는 주소 키워드 텍스트 검색 |
 | **화장실 상세 정보 조회** | `GET` | `/toilets/{id}` | 특정 화장실의 전체 편의시설 및 최근 제보 조회 |
 | **신규 화장실 등록 제보** | `POST` | `/toilets` | 사용자가 발견한 미등록 개방화장실 등록 |
 | **실시간 상태 제보 등록** | `POST` | `/toilets/{id}/reports` | 특정 화장실의 휴지, 위생 상태, 개방 여부 제보 |
 | **오류 신고 접수** | `POST` | `/toilets/{id}/issues` | 폐쇄, 위치 오류 등 정보 오류 신고 |
+| **오류 신고 상태 변경** | `PATCH` | `/toilets/issues/{id}/status` | 신고 처리 상태(확인중, 조치완료 등) 변경 |
+| **오류 신고 목록 조회** | `GET` | `/toilets/issues` | 접수된 오류 신고 목록 조회 |
+| **공공데이터 CSV 적재** | `POST` | `/admin/import-csv` | 표준 CSV 파일 업로드 및 DB 적재 |
 
 ---
 
-## 📖 2. 엔드포인트 상세 명세
+## 2. 엔드포인트 상세 명세
 
 ### 1) 주변 화장실 목록 조회 (위치 기반 탐색)
 * **Endpoint**: `GET /toilets/nearby`
@@ -53,7 +57,16 @@
 
 ---
 
-### 2) 화장실 상세 정보 조회
+### 2) 화장실 키워드 검색
+* **Endpoint**: `GET /toilets/search`
+* **Query Parameters**:
+  * `keyword` (required, string): 검색어 (예: "선문대", "배방")
+  * `lat` (optional, double): 사용자 현재 위도 (거리 계산용)
+  * `lng` (optional, double): 사용자 현재 경도 (거리 계산용)
+
+---
+
+### 3) 화장실 상세 정보 조회
 * **Endpoint**: `GET /toilets/{id}`
 * **Path Variable**: `id` (화장실 ID)
 
@@ -95,7 +108,7 @@
 
 ---
 
-### 3) 실시간 상태 제보 등록 (휴지/위생)
+### 4) 실시간 상태 제보 등록 (휴지/위생)
 * **Endpoint**: `POST /toilets/{id}/reports`
 * **Path Variable**: `id` (화장실 ID)
 * **Request Body**:
@@ -119,7 +132,7 @@
 
 ---
 
-### 4) 화장실 정보 오류 신고
+### 5) 화장실 정보 오류 신고
 * **Endpoint**: `POST /toilets/{id}/issues`
 * **Request Body**:
 ```json
@@ -140,7 +153,7 @@
 
 ---
 
-## 🚦 3. 공통 에러 응답 규격
+## 3. 공통 에러 응답 규격
 
 ```json
 {

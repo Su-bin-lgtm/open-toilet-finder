@@ -8,22 +8,31 @@ spring:
   application:
     name: open-toilet-backend
 
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 26MB
+
   # MySQL 데이터베이스 연결 설정 (보안을 위해 환경 변수로 주입하거나 local 프로필 사용)
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/open_toilet?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul}
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:1234}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   # JPA / Hibernate 설정
   jpa:
     hibernate:
-      ddl-auto: update # 개발 단계: update (테이블 자동 생성/수정), 배포 시 validate/none 권장
+      ddl-auto: validate # 스키마 변경은 수동 마이그레이션으로 적용
     show-sql: true     # 콘솔에 실행되는 SQL 쿼리문 출력
     properties:
       hibernate:
         format_sql: true # SQL 쿼리를 읽기 쉽게 포맷팅
         default_batch_fetch_size: 100 # N+1 문제 완화용 일괄 페치 크기
+
+app:
+  images:
+    storage-dir: ${TOILET_IMAGE_STORAGE_DIR:${user.home}/.open-toilet-finder/images}
 
 # 로깅 레벨 설정
 logging:
@@ -31,3 +40,4 @@ logging:
     com.opentoilet: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+

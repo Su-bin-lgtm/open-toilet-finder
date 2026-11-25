@@ -7,3 +7,4 @@ spring:
     url: jdbc:mysql://localhost:3306/open_toilet?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: root
     password: YOUR_LOCAL_PASSWORD
+

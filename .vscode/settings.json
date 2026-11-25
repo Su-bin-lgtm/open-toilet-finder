@@ -1,8 +1,11 @@
 {
   "files.encoding": "utf8",
   "java.configuration.updateBuildConfiguration": "automatic",
+  "java.project.sourcePaths": ["backend/src/main/java", "backend/src/test/java"],
+  "java.project.outputPath": "backend/bin",
   "editor.tabSize": 2,
   "[java]": {
     "editor.tabSize": 4
   }
 }
+

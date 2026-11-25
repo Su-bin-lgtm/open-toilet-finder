@@ -1,12 +1,12 @@
-# 🚻 Open Toilet Finder (개방화장실 실시간 정보 공유 및 내비게이션 플랫폼)
+# Open Toilet Finder (개방화장실 실시간 정보 공유 및 내비게이션 플랫폼)
 
 공공데이터와 사용자 실시간 제보를 결합하여, 내 주변 개방화장실의 정확한 위치, 개방 여부, 위생 상태 및 편의시설 정보를 제공하는 모바일 서비스 플랫폼입니다.
 
 ---
 
-## 📌 1. 프로젝트 개요
+## 1. 프로젝트 개요
 
-* **프로젝트명**: `open-toilet-finder`
+* **프로젝트명**: open-toilet-finder
 * **국문명**: 개방화장실 실시간 정보 공유 및 내비게이션 플랫폼
 * **개발 배경 및 목적**:
   * 외출 중 급하게 화장실을 찾을 때 개방 여부(잠김 여부, 도어락 번호)나 위생 상태(휴지 유무)를 사전에 확인하기 어려운 문제를 해결합니다.
@@ -15,7 +15,7 @@
 
 ---
 
-## 🛠️ 2. 기술 스택
+## 2. 기술 스택
 
 ### Frontend
 * **Core Framework**: React Native (Expo)
@@ -31,13 +31,13 @@
 * **Documentation**: OpenAPI (Swagger)
 
 ### Collaboration & Environment
-* **VCS**: Git, GitHub ([Repository](https://github.com/Su-bin-lgtm/open-toilet-finder))
+* **VCS**: Git, GitHub (https://github.com/Su-bin-lgtm/open-toilet-finder)
 * **Editor**: Visual Studio Code (VS Code)
 * **Workflow**: Git Feature Branch & Pull Request (PR)
 
 ---
 
-## 📂 3. 프로젝트 전체 구조
+## 3. 프로젝트 전체 구조
 
 ```text
 open-toilet-finder/
@@ -85,7 +85,7 @@ open-toilet-finder/
 
 ---
 
-## 🚀 4. 주요 기능
+## 4. 주요 기능
 
 1. **현재 위치 기반 주변 화장실 탐색**: GPS 기반 반경(기본 500m~1km) 내 화장실 마커 지도 표시
 2. **화장실 위치 및 상세 정보 조회**: 주소, 층수, 남녀 분리 여부, 변기 수 등 상세 안내
@@ -99,22 +99,21 @@ open-toilet-finder/
 
 ---
 
-## 👥 5. 협업 규칙 & 보안 가이드
+## 5. 협업 규칙 & 보안 가이드
 
-### 🌿 Git Branch 전략
+### Git Branch 전략
 * `main`: 배포 가능한 안정적인 최신 릴리스 브랜치
 * `develop`: 기능 개발 통합 브랜치
 * `feature/{frontend|backend}-{기능명}`: 단위 기능 작업 브랜치
-  * 예: `feature/backend-toilet-api`, `feature/frontend-map-screen`
 * 모든 기능은 Pull Request(PR)를 작성하여 코드 리뷰 후 병합합니다.
 
-### 🔒 보안 및 환경 변수 보호
-* **절대 API 키, DB 비밀번호, JWT 시크릿을 Git에 커밋하지 않습니다.**
+### 보안 및 환경 변수 보호
+* 절대 API 키, DB 비밀번호, JWT 시크릿을 Git에 커밋하지 않습니다.
 * 데이터베이스 접속 정보는 환경 변수(`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`) 또는 로컬 전용 설정 파일(`application-local.yml`)을 통해 관리하며, 이 파일들은 `.gitignore`에 등록되어 있습니다.
 
 ---
 
-## 💻 6. VS Code 작업 가이드
+## 6. VS Code 작업 가이드
 
 1. **권장 확장 프로그램 (Extensions)**:
    * **Java**: `Extension Pack for Java` (Red Hat), `Spring Boot Extension Pack` (VMware)

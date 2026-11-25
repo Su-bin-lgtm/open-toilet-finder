@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "OpenToiletApplication (스프링부트 서버 실행)",
+      "request": "launch",
+      "mainClass": "com.opentoilet.OpenToiletApplication",
+      "projectName": "open-toilet-backend",
+      "vmArgs": "-Dfile.encoding=UTF-8"
+    }
+  ]
+}
+

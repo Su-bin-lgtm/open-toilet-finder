@@ -35,6 +35,9 @@ dependencies {
     // 4. 입력값 유효성 검증 (Validation)
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // 관리자 제보 API 보호
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
     // 5. Lombok (Getter, Setter, 생성자 자동 생성 - 초보자도 코드 양을 줄여 쉽게 파악 가능)
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -46,3 +49,4 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
